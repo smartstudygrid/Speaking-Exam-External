@@ -15,6 +15,7 @@
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script>
+    try{if(localStorage.getItem('igcse_theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}
     function handleLogoFallback(img) {
       if (!img) return;
       const extensions = ['svg', 'jpg', 'jpeg', 'webp', 'gif'];
@@ -32,9 +33,9 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Public Sans', system-ui, sans-serif;
     }
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
@@ -101,6 +102,41 @@
     html.dark .text-slate-600 {
       color: #cbd5e1 !important;
     }
+  
+    :root{--ink:#16213e;--paper:#f2f4f8;--line:#dce1ea}
+    body{background:var(--paper)}
+    html body .text-xs{font-size:.86rem;line-height:1.4rem}
+    html body .text-\[11px\]{font-size:.8rem}
+    html body .text-\[10px\]{font-size:.74rem}
+    .step-panel{border-color:var(--line)!important;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+    .script-box{background:#fff!important;border:1px solid var(--line)!important;border-left:5px solid #4f46e5!important;padding:1rem 1.25rem!important;border-radius:.75rem}
+    .script-text{font-family:'Newsreader',Georgia,serif;font-size:1.3rem;line-height:1.7;color:var(--ink);font-style:normal;font-weight:500}
+    .q-text{font-family:'Newsreader',Georgia,serif;font-size:1.22rem;line-height:1.5}
+    #formalIdScript{font-size:1.2rem!important;line-height:1.7}
+    #sideNav{background:#e8ebf1;width:15.5rem}
+    #sideTabs .tab-btn{padding:.6rem .7rem}
+    #sideTabs .tab-btn.bg-white{box-shadow:inset 4px 0 0 #4f46e5,0 1px 2px rgba(16,24,40,.06)}
+    #sectionTimerDisplay{font-size:1.9rem!important;line-height:1.2}
+    #totalTimerDisplay{font-size:1.3rem!important}
+    html body input[type=checkbox]{width:1.35rem!important;height:1.35rem!important;accent-color:#4f46e5;flex-shrink:0;margin-left:.75rem}
+    div:has(> input[type=checkbox]:checked) > div:first-child{opacity:.4}
+    #modalCardTitle{font-family:'Newsreader',Georgia,serif;font-size:2rem}
+    #modalCardIntro,#modalCardGuidance{font-family:'Newsreader',Georgia,serif;font-size:1.3rem;line-height:1.55}
+    #modalOpt1,#modalOpt2{font-size:1.15rem}
+    :focus-visible{outline:2px solid #4f46e5;outline-offset:2px}
+    html.dark body{background:#0b0f19}
+    html.dark .script-box{background:#111827!important;border-color:#1f2937!important;border-left-color:#818cf8!important}
+    html.dark .script-text,html.dark .q-text{color:#e5e7eb}
+    html.dark #sideNav{background:#0f172a}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    @media (max-width:860px){
+      #appShell{flex-direction:column}
+      #sideNav{width:100%!important;border-right:0;border-bottom:1px solid var(--line);padding:.5rem}
+      #sideTabs{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.25rem}
+      #sideTabs .tab-btn{width:auto;white-space:nowrap}
+      #sideTimers{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;border-top:0}
+      .script-text{font-size:1.1rem}
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased select-none">
@@ -147,6 +183,7 @@
         <span class="hidden md:inline">Admin</span>
       </button>
 
+      <button onclick="toggleTheme()" title="Light / dark" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"><i class="ph-bold ph-circle-half text-sky-400"></i></button>
       <!-- Full Screen Toggle Button -->
       <button onclick="toggleFullScreen()" id="btnFullscreen" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition shadow-sm" title="Toggle Full Screen">
         <i class="ph-bold ph-arrows-out text-sky-400" id="fullscreenIcon"></i>
@@ -156,10 +193,10 @@
   </header>
 
   <!-- Main Work Area with Left Sidebar Navigation -->
-  <div class="flex-1 flex overflow-hidden w-full">
+  <div id="appShell" class="flex-1 flex overflow-hidden w-full">
     <!-- Left Sidebar: Step Navigation & Timer Monitor -->
-    <aside class="w-52 sm:w-60 bg-slate-200/95 border-r border-slate-300 flex-shrink-0 flex flex-col justify-between p-2.5 relative select-none">
-      <div class="space-y-1.5 overflow-y-auto">
+    <aside id="sideNav" class="w-52 sm:w-60 bg-slate-200/95 border-r border-slate-300 flex-shrink-0 flex flex-col justify-between p-2.5 relative select-none">
+      <div id="sideTabs" class="space-y-1.5 overflow-y-auto">
         <button onclick="goToStep(0)" id="tab-0" class="tab-btn w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-white text-indigo-700 font-semibold shadow-sm border border-slate-200/80 transition text-left text-xs">
           <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0">0</span>
           <span class="truncate">Setup & Hardware</span>
@@ -191,7 +228,7 @@
       </div>
 
       <!-- Timers & Recording Monitor Rows (Relocated to Sidebar) -->
-      <div class="space-y-2 pt-2 border-t border-slate-300/80">
+      <div id="sideTimers" class="space-y-2 pt-2 border-t border-slate-300/80">
         <!-- Row 1: Total Elapsed Timer -->
         <div class="bg-slate-900 text-white rounded-xl px-3 py-2 flex items-center justify-between border border-slate-800 shadow-sm">
           <div class="flex items-center gap-1.5 text-slate-400 text-xs">
@@ -225,6 +262,7 @@
           <canvas id="vuMeter" width="48" height="14" class="rounded bg-slate-950 border border-slate-700/80"></canvas>
         </div>
 
+        <button id="btnSideRec" onclick="sideRecToggle()" class="w-full px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold flex items-center justify-center gap-2 transition"><i class="ph-fill ph-record"></i><span id="btnSideRecText">Start recording</span></button>
         <!-- Slim Overall Step Progress Bar -->
         <div class="pt-1">
           <div class="h-[3px] bg-slate-300 rounded-full overflow-hidden w-full">
@@ -385,12 +423,12 @@
           </div>
 
           <!-- EXAMINER SCRIPT BOX -->
-          <div class="bg-indigo-50/80 p-3.5 rounded-xl border border-indigo-200">
+          <div class="script-box">
             <div class="flex items-center justify-between text-xs text-indigo-900 font-bold mb-1.5">
               <span class="flex items-center gap-1.5"><i class="ph-bold ph-chat-centered-text"></i> Examiner Script:</span>
               <span class="text-[10px] bg-indigo-200/70 text-indigo-800 px-2 py-0.5 rounded font-mono">Read to candidate</span>
             </div>
-            <p class="text-sm text-indigo-950 font-medium leading-relaxed italic">
+            <p class="script-text">
               "First, we will start with a short warm-up where I will ask you some questions to find out more about you. This part is not assessed. After the warm-up there are three assessed parts to the test: an interview, a short talk and a discussion."
             </p>
           </div>
@@ -477,12 +515,12 @@
           </div>
 
           <!-- Examiner script -->
-          <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-200 mb-2.5">
+          <div class="script-box mb-2.5">
             <div class="flex items-center justify-between text-xs text-indigo-900 font-bold mb-1">
               <span class="flex items-center gap-1.5"><i class="ph-bold ph-quotes"></i> Examiner Script:</span>
               <span class="text-[10px] bg-indigo-200/70 text-indigo-800 px-2 py-0.5 rounded font-mono">Read in full</span>
             </div>
-            <p class="text-xs sm:text-sm text-indigo-950 font-medium leading-relaxed italic" id="p1ScriptDisplay">
+            <p class="script-text" id="p1ScriptDisplay">
               "The first assessed part of the test is an interview. I am going to ask you some questions about birthday celebrations. Try to say as much as you can for each question. Before we start, do you have any questions?"
             </p>
           </div>
@@ -541,14 +579,14 @@
           <!-- SUBPHASE A: 1 MIN PREPARATION -->
           <div id="p2-subphase-prep" class="space-y-2.5">
             <!-- Script 1 -->
-            <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-200">
+            <div class="script-box">
               <div class="flex items-center justify-between text-xs text-indigo-900 font-bold mb-1">
                 <span class="flex items-center gap-1.5"><i class="ph-bold ph-quotes"></i> Examiner Script (Handing the card):</span>
                 <button onclick="openCandidateModal()" class="text-[11px] bg-purple-600 hover:bg-purple-700 text-white px-2 py-0.5 rounded font-medium flex items-center gap-1">
                   <i class="ph-bold ph-arrows-out-simple"></i> Open Card (With Auto 1m Timer)
                 </button>
               </div>
-              <p class="text-xs sm:text-sm text-indigo-950 font-medium leading-relaxed italic">
+              <p class="script-text">
                 "The second assessed part of the test is a short talk. I will give you a card and you will have one minute to read it and think about what you want to say. You should talk about the points on the card. You can't make any written notes, but you can ask me if there is anything you do not understand. You may keep the card until the end of the short talk. Here is your card."
               </p>
             </div>
@@ -570,12 +608,12 @@
           <!-- SUBPHASE B: 2 MIN TALK -->
           <div id="p2-subphase-talk" class="space-y-2.5 hidden">
             <!-- Script to start -->
-            <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-200">
+            <div class="script-box">
               <div class="flex items-center justify-between text-xs text-indigo-900 font-bold mb-1">
                 <span class="flex items-center gap-1.5"><i class="ph-bold ph-quotes"></i> Examiner Script (Prompting to begin):</span>
                 <span class="text-[10px] bg-indigo-200/70 text-indigo-800 px-2 py-0.5 rounded font-mono">Read to candidate</span>
               </div>
-              <p class="text-xs sm:text-sm text-indigo-950 font-medium leading-relaxed italic">
+              <p class="script-text">
                 "You now have up to two minutes to talk about the topic on the card. I will stop you after two minutes, but do not worry if you have not finished your talk. Would you like to start?"
               </p>
             </div>
@@ -625,12 +663,12 @@
           </div>
 
           <!-- Examiner script -->
-          <div class="bg-indigo-50/80 p-3 rounded-xl border border-indigo-200 mb-2">
+          <div class="script-box mb-2">
             <div class="flex items-center justify-between text-xs text-indigo-900 font-bold mb-1">
               <span class="flex items-center gap-1.5"><i class="ph-bold ph-quotes"></i> Examiner Script:</span>
               <span class="text-[10px] bg-indigo-200/70 text-indigo-800 px-2 py-0.5 rounded font-mono">Read to candidate</span>
             </div>
-            <p class="text-xs sm:text-sm text-indigo-950 font-medium leading-relaxed italic">
+            <p class="script-text">
               "Now I am going to ask you a few questions related to the topic you have just talked about. This part of the test will last approximately three minutes. Before we start, do you have any questions?"
             </p>
           </div>
@@ -1646,6 +1684,21 @@
       }
     });
 
+    function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function toggleTheme(){const d=document.documentElement.classList.toggle('dark');try{localStorage.setItem('igcse_theme',d?'dark':'light')}catch(e){}}
+    function ensureClockRunning(){
+      if(!state.totalTimerStarted){state.totalTimerStarted=true;state.totalStartTime=Date.now();state.totalTimerInterval=setInterval(recalibrateTotalTimer,500);}
+      if(!state.sectionInterval) startSectionCountdownLoop();
+    }
+    async function sideRecToggle(){
+      if(!state.isRecording){
+        if(state.audioChunks.length){showToast('This session already has a recording.');return;}
+        await startMasterRecording();return;
+      }
+      if(confirm('Stop the recording and go to export?')){stopMasterRecording();goToStep(6);}
+    }
+    window.addEventListener('beforeunload',e=>{if(state.isRecording||(state.generatedMp3Blob&&!state.mp3Downloaded)){e.preventDefault();e.returnValue='';}});
+
     function formatTime(sec) {
       const sVal = Math.max(0, Math.floor(sec));
       const m = Math.floor(sVal / 60).toString().padStart(2, '0');
@@ -1814,6 +1867,7 @@
     }
 
     function drawVuMeter() {
+      if (state.vuAnimId) cancelAnimationFrame(state.vuAnimId);
       const canvas = document.getElementById('vuMeter');
       if (!canvas || !state.analyser) return;
       const ctx = canvas.getContext('2d');
@@ -1843,6 +1897,8 @@
     }
 
     function updateRecStatusUI(status) {
+      const sb = document.getElementById('btnSideRecText');
+      if (sb) sb.textContent = status === 'recording' ? 'Stop & export' : status === 'stopped' ? 'Recording stopped' : 'Start recording';
       const badge = document.getElementById('recStatusBadge');
       const dot = document.getElementById('recDot');
       const text = document.getElementById('recStatusText');
@@ -1865,6 +1921,7 @@
 
     function goToStep(stepIndex) {
       state.currentStep = stepIndex;
+      if (stepIndex >= 1 && stepIndex <= 5) { ensureClockRunning(); state.timeUpTriggered[stepIndex] = false; }
 
       const overallBar = document.getElementById('overallStepProgressBar');
       if (overallBar) {
@@ -2085,6 +2142,7 @@
       }
 
       updateRecStatusUI('stopped');
+      try { if (state.audioStream) state.audioStream.getTracks().forEach(t => t.stop()); state.audioStream = null; } catch (e) {}
 
       const btnStop = document.getElementById('btnStopMaster');
       if (btnStop) {
@@ -2114,14 +2172,15 @@
         percentLabel.textContent = "20%";
 
         const audioBuffer = await decodeCtx.decodeAudioData(arrayBuffer);
+        decodeCtx.close().catch(() => {});
 
         statusLabel.textContent = "Encoding to 128 kbps MP3...";
         progressBar.style.width = "40%";
         percentLabel.textContent = "40%";
 
-        setTimeout(() => {
+        setTimeout(async () => {
           try {
-            const mp3Blob = encodeAudioBufferToMp3(audioBuffer, (progress) => {
+            const mp3Blob = await encodeAudioBufferToMp3(audioBuffer, (progress) => {
               const currentPercent = 40 + Math.round(progress * 55);
               progressBar.style.width = `${currentPercent}%`;
               percentLabel.textContent = `${currentPercent}%`;
@@ -2150,7 +2209,7 @@
       }
     }
 
-    function encodeAudioBufferToMp3(audioBuffer, onProgress) {
+    async function encodeAudioBufferToMp3(audioBuffer, onProgress) {
       const numChannels = 1;
       const sampleRate = audioBuffer.sampleRate;
       const kbps = 128;
@@ -2179,8 +2238,9 @@
         const chunk = samples.subarray(i, i + blockSize);
         const mp3buf = mp3encoder.encodeBuffer(chunk);
         if (mp3buf.length > 0) mp3Data.push(mp3buf);
-        if (i % (blockSize * 10) === 0 && onProgress) {
-          onProgress(i / samples.length);
+        if (i % (blockSize * 150) === 0) {
+          if (onProgress) onProgress(i / samples.length);
+          await new Promise(r => setTimeout(r, 0));
         }
       }
 
@@ -2211,6 +2271,7 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      state.mp3Downloaded = true;
       showToast("MP3 download started.");
     }
 
@@ -2341,7 +2402,7 @@
           div.innerHTML = `
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Question ${idx + 1}</span>
-              <p class="text-sm font-semibold text-slate-900 mt-0.5">"${q}"</p>
+              <p class="q-text font-semibold text-slate-900 mt-0.5">“${esc(q)}”</p>
             </div>
             <input type="checkbox" class="w-4 h-4 rounded text-indigo-600 cursor-pointer">
           `;
@@ -2377,7 +2438,7 @@
           div.innerHTML = `
             <div>
               <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Question ${idx + 1}</span>
-              <p class="text-xs sm:text-sm font-semibold text-slate-900">"${q}"</p>
+              <p class="q-text font-semibold text-slate-900">“${esc(q)}”</p>
             </div>
             <input type="checkbox" class="w-4 h-4 rounded text-indigo-600 cursor-pointer">
           `;
@@ -2391,7 +2452,7 @@
       document.getElementById('modalOpt1').textContent = card.opt1;
       document.getElementById('modalOpt2').textContent = card.opt2;
       document.getElementById('modalCardIntro').textContent = card.intro || "You have the opportunity to spend a week working as a journalist. You are considering the following options:";
-      document.getElementById('modalCardGuidance').innerHTML = card.guidance || `Compare the two options. Say which option you would prefer, and why.`;
+      document.getElementById('modalCardGuidance').textContent = card.guidance || `Compare the two options. Say which option you would prefer, and why.`;
 
       // 4. Update Part 3 Discussion Questions (Step 5)
       const p3Container = document.getElementById('p3QuestionsContainer');
@@ -2403,7 +2464,7 @@
           div.innerHTML = `
             <div>
               <span class="text-[10px] font-bold text-cyan-700 uppercase">Question ${idx + 1}</span>
-              <p class="text-xs sm:text-sm font-semibold text-slate-900">${q}</p>
+              <p class="q-text font-semibold text-slate-900">${esc(q)}</p>
             </div>
             <input type="checkbox" class="w-4 h-4 rounded text-cyan-600 cursor-pointer">
           `;
@@ -2602,10 +2663,15 @@
       doc.rect(14, yPos + 3, 182, 45, 'FD');
 
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
       doc.setTextColor(51, 65, 85);
-      const splitNotes = doc.splitTextToSize(notesText, 174);
-      doc.text(splitNotes, 18, yPos + 10);
+      let nSize = 9, splitNotes, lineMm;
+      do {
+        doc.setFontSize(nSize);
+        splitNotes = doc.splitTextToSize(notesText, 174);
+        lineMm = doc.getLineHeight() / doc.internal.scaleFactor;
+        nSize -= 0.5;
+      } while (splitNotes.length * lineMm > 38 && nSize > 5.5);
+      doc.text(splitNotes.slice(0, Math.floor(38 / lineMm)), 18, yPos + 10);
 
       // Verification & Sign-off Footer
       yPos += 55;
@@ -2741,11 +2807,11 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML = `
-          <td class="p-2.5 font-mono font-bold">${c.candNumber || '-'}</td>
-          <td class="p-2.5 font-semibold text-slate-800">${c.candName || '-'}</td>
-          <td class="p-2.5">${c.centerNumber || 'SA123'}</td>
-          <td class="p-2.5 font-bold text-amber-700">Card ${c.cardAssigned || 'A'}</td>
-          <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${c.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${c.status || 'Pending'}</span></td>
+          <td class="p-2.5 font-mono font-bold">${esc(c.candNumber || '-')}</td>
+          <td class="p-2.5 font-semibold text-slate-800">${esc(c.candName || '-')}</td>
+          <td class="p-2.5">${esc(c.centerNumber || 'SA123')}</td>
+          <td class="p-2.5 font-bold text-amber-700">Card ${esc(c.cardAssigned || 'A')}</td>
+          <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${c.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${esc(c.status || 'Pending')}</span></td>
           <td class="p-2.5 text-right space-x-1">
             <button onclick="loadCandidateDirectly(${idx})" class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold">Load</button>
             <button onclick="deleteCandidateDirectly(${idx})" class="px-2 py-1 bg-slate-200 hover:bg-red-600 hover:text-white rounded text-[10px] text-slate-700">Del</button>
@@ -3543,6 +3609,8 @@ function doPost(e) {
     }
 
     function promptNextCandidateSession() {
+      if (state.isRecording) { showToast('Recording is still running. Stop it before moving on.', 4200); return; }
+      if (state.generatedMp3Blob && !state.mp3Downloaded && !confirm('The MP3 has not been downloaded. Set up the next candidate anyway? The recording will be lost.')) return;
       const modal = document.getElementById('resetCandidateModal');
       if (modal) modal.classList.remove('hidden');
     }
@@ -3580,6 +3648,7 @@ function doPost(e) {
         }
       } catch (e) {}
 
+      state.mp3Downloaded = true;
       location.reload();
     }
 
