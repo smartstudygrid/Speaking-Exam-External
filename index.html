@@ -3640,7 +3640,10 @@ function doPost(e) {
       onCardSelectionChange(CARDS.SAMPLE ? 'SAMPLE' : Object.keys(CARDS)[0]);
       renderRosterTable();
 
-      fetchRosterFromGoogleSheet(false);
+      // Auto-sync candidates and speaking cards from Google Sheet on load
+      fetchRosterFromGoogleSheet(true).then(() => {
+        if (!state.totalTimerStarted && CARDS[state.activeCardKey]) onCardSelectionChange(state.activeCardKey);
+      });
 
       await populateMicrophoneList();
 
